@@ -47,6 +47,24 @@ function getLikes(base_hostname, cb) {
     _getLikes(0);
 }
 
+/* Callback cb with info about a post */
+function getPost(hostname, post_id, cb) {
+    var api_url = 'http://api.tumblr.com/v2/blog/' + hostname + '/posts?id=' + post_id 
+                + '&api_key=' + TUMBLR_API_KEY;
+
+    var req = http.get(api_url, function(response) {
+        var str = '';
+
+        response.on('data', function (chunk) {
+            str += chunk;
+        });
+
+        response.on('end', function () {
+            cb(JSON.parse(str).response.posts[0]);
+        });
+    });
+}
+
 /* Track liked posts for all tracked blogs */
 function track() {
     console.log('Tracking...');
@@ -69,7 +87,7 @@ function init() {
     db.createTables(conn);
 
     db.addBlog(conn, 'blog.zacksultan.com');
-
+    
     /* Track once */
     track();
 
