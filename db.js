@@ -26,28 +26,21 @@ var createBlog = 'CREATE TABLE Blog(' +
                 'date_added VARCHAR(50) NOT NULL,' +
                 'PRIMARY KEY (hostname))';
 
-var createPost = 'CREATE TABLE Post(' +
-                'hostname VARCHAR(255) NOT NULL,' +
-                'post_id BIGINT NOT NULL,' +
-                'PRIMARY KEY (post_id),' +
-                'FOREIGN KEY (hostname) REFERENCES Blog(hostname))';
-
 var createTracklist = 'CREATE TABLE Tracklist(' +
+                    'hostname VARCHAR(255) NOT NULL,' +
                     'post_id BIGINT NOT NULL,' +
                     'time_stamp VARCHAR(50) NOT NULL,' +
                     'note_count INT NOT NULL,' +
-                    'PRIMARY KEY (post_id, time_stamp),' +
-                    'FOREIGN KEY (post_id) REFERENCES Post(post_id))'
+                    'PRIMARY KEY (hostname, post_id, time_stamp),' +
+                    'FOREIGN KEY (hostname) REFERENCES Blog(hostname))'
 
     dbserver.query(createBlog, function(err, results) { if (err) throw err;});
-    dbserver.query(createPost, function(err, results) { if (err) throw err;});
     dbserver.query(createTracklist, function(err, results) { if (err) throw err;});
 }
 
 /* Drop tables */
 function dropTables(dbserver) {
     dbserver.query('DROP TABLE Tracklist', function(err, results) { if (err) console.log("Tracklist table already dropped");});
-    dbserver.query('DROP TABLE Post', function(err, results) { if (err) console.log("Post table already dropped");});
     dbserver.query('DROP TABLE Blog', function(err, results) { if (err) console.log("Blog table already dropped");});
 }
 
@@ -68,14 +61,15 @@ function viewTableData(dbserver, inputTable, cb) {
 }
 
 /* Add a new blog */
-function addBlog(dbserver, hostname, date_added) {
-    dbserver.query("INSERT INTO Blog VALUES('" + hostname + "', '" + date_added + "')", 
+function addBlog(dbserver, hostname) {
+    dbserver.query("INSERT INTO Blog VALUES('" + hostname + "', now())", 
         function(err, results) {if (err) throw err;});
 }
 
-/* Add a new post */
-function addPost(dbserver, hostname, post_id) {
-    dbserver.query("INSERT INTO Post VALUES('" + hostname + "', '" + post_id + "')", 
+/* Add a new tracking to tracklist */
+function addTracklist(dbserver, hostname, post_id, note_count) {
+    dbserver.query("INSERT INTO Tracklist VALUES('" + hostname + "', '" + post_id + 
+                    "', now(), '" + note_count +"' )", 
         function(err, results) {if (err) throw err;});
 }
 
@@ -102,4 +96,4 @@ module.exports.dropTables = dropTables;
 module.exports.viewAllTables = viewAllTables;
 module.exports.viewTableData = viewTableData;
 module.exports.addBlog = addBlog;
-module.exports.addPost = addPost;
+module.exports.addTracklist = addTracklist;

@@ -52,7 +52,7 @@ function init() {
     db.dropTables(conn);
     db.createTables(conn);
 
-    db.addBlog(conn, 'blog.zacksultan.com', '2013-02-02');
+    db.addBlog(conn, 'blog.zacksultan.com');
 
     /* Store all liked posts for all blogs (of course, this doesn't belong here) */
     db.viewTableData(conn, 'Blog', function (blogs) { 
@@ -61,7 +61,7 @@ function init() {
 
             getLikes(hostname, function (likes) {
                 for (var i in likes) { 
-                    db.addPost(conn, hostname, likes[i].id); 
+                    db.addTracklist(conn, hostname, likes[i].id, likes[i].note_count); 
                 };
             });
         }
