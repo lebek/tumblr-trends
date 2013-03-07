@@ -1,8 +1,21 @@
+var mysql = require('mysql');
+
 /* Print results array to console */
 function printArray(results) {
-	for (var i=0;i<results.length;i++){
+	for (var i in results) { 
 			console.log(results[i]);
 	}; 
+}
+
+/* Connect to local mysql server */
+function connect() {
+	return mysql.createConnection({
+    	host: 'localhost',
+    	port: 3306,
+    	user: 'root',
+    	password: '1234',
+    	database: 'trends'
+	});
 }
 
 /* Create tables */
@@ -15,16 +28,12 @@ var createBlog = 'CREATE TABLE Blog(' +
 
 var createPost = 'CREATE TABLE Post(' +
 				'hostname VARCHAR(255) NOT NULL,' +
-				'post_id INT NOT NULL,' +
-				'url VARCHAR(255),' +
-				'date VARCHAR(50),' +
-				'image VARCHAR(255),' +
-				'text VARCHAR(255),' +
+				'post_id BIGINT NOT NULL,' +
 				'PRIMARY KEY (post_id),' +
 				'FOREIGN KEY (hostname) REFERENCES Blog(hostname))';
 
 var createTracklist = 'CREATE TABLE Tracklist(' +
-					'post_id INT NOT NULL,' +
+					'post_id BIGINT NOT NULL,' +
 					'time_stamp VARCHAR(50) NOT NULL,' +
 					'note_count INT NOT NULL,' +
 					'PRIMARY KEY (post_id, time_stamp),' +
@@ -43,33 +52,39 @@ function dropTables(dbserver) {
 }
 
 /* View all tables in database */
-function viewAllTables(dbserver) {
+function viewAllTables(dbserver, cb) {
 	dbserver.query('SHOW TABLES', function(err, results) {
 		if (err) throw err;
-		printArray(results);
-		return results;
+		cb(results);
 	});
 }
 
 /* View all data of a table */
-function viewTableData(dbserver, inputTable) {
+function viewTableData(dbserver, inputTable, cb) {
 	dbserver.query('SELECT * FROM ' + inputTable, function(err, results) {
 		if (err) throw err;
-		printArray(results);
-		return results;
+		cb(results);
 	});
 }
 
 /* Add a new blog */
-function addBlog(dbserver, hostName, date_added) {
-	dbserver.query("INSERT INTO Blog VALUES('" + hostName + "', '" + date_added + "')", 
+function addBlog(dbserver, hostname, date_added) {
+	dbserver.query("INSERT INTO Blog VALUES('" + hostname + "', '" + date_added + "')", 
+		function(err, results) {if (err) throw err;});
+}
+
+/* Add a new post */
+function addPost(dbserver, hostname, post_id) {
+	dbserver.query("INSERT INTO Post VALUES('" + hostname + "', '" + post_id + "')", 
 		function(err, results) {if (err) throw err;});
 }
 
 
 /* export functions */
+module.exports.connect = connect;
 module.exports.createTables = createTables;
 module.exports.dropTables = dropTables;
 module.exports.viewAllTables = viewAllTables;
 module.exports.viewTableData = viewTableData;
 module.exports.addBlog = addBlog;
+module.exports.addPost = addPost;
