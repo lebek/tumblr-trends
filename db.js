@@ -73,6 +73,13 @@ function addTracklist(dbserver, hostname, post_id, note_count) {
         function(err, results) {if (err) throw err;});
 }
 
+function getTrending(dbserver) {
+    /* We want to: group rows by unique (hostname,post_id), then sort the rows 
+     * in each group by timestamp, then take the two most recent, and get the 
+     * result of note_count1-note_count2, then sort the groups by the result of 
+     * this subtraction. */
+}
+
 function test() {
     conn = connect();
 
@@ -87,7 +94,6 @@ function test() {
 
     conn.end();
 }
-
 
 /* export functions */
 module.exports.connect = connect;

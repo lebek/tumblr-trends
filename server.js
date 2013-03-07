@@ -47,14 +47,9 @@ function getLikes(base_hostname, cb) {
     _getLikes(0);
 }
 
-function init() {
-    conn = db.connect();
-    db.dropTables(conn);
-    db.createTables(conn);
-
-    db.addBlog(conn, 'blog.zacksultan.com');
-
-    /* Store all liked posts for all blogs (of course, this doesn't belong here) */
+/* Track liked posts for all tracked blogs */
+function track() {
+    console.log('Tracking...');
     db.viewTableData(conn, 'Blog', function (blogs) { 
         for (var i in blogs) {
             var hostname = blogs[i].hostname;
@@ -66,6 +61,20 @@ function init() {
             });
         }
     });
+}
+
+function init() {
+    conn = db.connect();
+    db.dropTables(conn);
+    db.createTables(conn);
+
+    db.addBlog(conn, 'blog.zacksultan.com');
+
+    /* Track once */
+    track();
+
+    /* ...and track again every hour */
+    setInterval(track, 60*60*1000);
 }
 
 init();
