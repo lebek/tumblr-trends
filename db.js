@@ -29,7 +29,7 @@ var createBlog = 'CREATE TABLE Blog(' +
 var createPost = 'CREATE TABLE Post(' +
                 'hostname VARCHAR(255) NOT NULL,' +
                 'post_id BIGINT NOT NULL,' +
-                'PRIMARY KEY (hostname),' +
+                'PRIMARY KEY (post_id),' +
                 'FOREIGN KEY (hostname) REFERENCES Blog(hostname))';
 
 var createTracklist = 'CREATE TABLE Tracklist(' +
