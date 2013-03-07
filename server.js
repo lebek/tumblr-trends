@@ -3,7 +3,7 @@ var http = require("http"),
     fs = require("fs"),
     url = require("url"),
     querystring = require("querystring"),
-    db = require("./dbfunctions");
+    db = require("./db");
 
 TUMBLR_API_KEY = 'Jpfj8ecNRrHu6b5PSpF8raAbHpQpE3YJeuL3qFYTT8SYbLXmte'
 
