@@ -31,15 +31,31 @@ var createTracklist = 'CREATE TABLE Tracklist(' +
                     'post_id BIGINT NOT NULL,' +
                     'time_stamp VARCHAR(50) NOT NULL,' +
                     'note_count INT NOT NULL,' +
+                    "note_delta INT," +
                     'PRIMARY KEY (hostname, post_id, time_stamp),' +
-                    'FOREIGN KEY (hostname) REFERENCES Blog(hostname))'
+                    'FOREIGN KEY (hostname) REFERENCES Blog(hostname))';
+
+var createTrigger = 'CREATE TRIGGER delta ' +
+                    'BEFORE INSERT ON Tracklist ' +
+                    'FOR EACH ROW ' +
+                    'BEGIN ' +
+                    'SET NEW.note_delta = NEW.note_count - (' +
+                    'SELECT note_count FROM Tracklist ' +
+                    'WHERE hostname=NEW.hostname ' +
+                    'AND post_id=NEW.post_id ' +
+                    'ORDER BY time_stamp DESC LIMIT 1); ' +
+                    'IF NEW.note_delta IS NULL THEN ' +
+                    'SET NEW.note_delta = 0; END IF; ' +
+                    'END';
 
     dbserver.query(createBlog, function(err, results) { if (err) throw err;});
     dbserver.query(createTracklist, function(err, results) { if (err) throw err;});
+    dbserver.query(createTrigger, function(err, results) { if (err) throw err;});
 }
 
 /* Drop tables */
 function dropTables(dbserver) {
+    dbserver.query('DROP TRIGGER delta', function(err, results) { if (err) console.log("delta trigger already dropped");});
     dbserver.query('DROP TABLE Tracklist', function(err, results) { if (err) console.log("Tracklist table already dropped");});
     dbserver.query('DROP TABLE Blog', function(err, results) { if (err) console.log("Blog table already dropped");});
 }
@@ -69,15 +85,12 @@ function addBlog(dbserver, hostname) {
 /* Add a new tracking to tracklist */
 function addTracklist(dbserver, hostname, post_id, note_count) {
     dbserver.query("INSERT INTO Tracklist VALUES('" + hostname + "', '" + post_id + 
-                    "', now(), '" + note_count +"' )", 
+                    "', now(), '" + note_count + "', NULL)", 
         function(err, results) {if (err) throw err;});
 }
 
 function getTrending(dbserver) {
-    /* We want to: group rows by unique (hostname,post_id), then sort the rows 
-     * in each group by timestamp, then take the two most recent, and get the 
-     * result of note_count1-note_count2, then sort the groups by the result of 
-     * this subtraction. */
+    /* Get the most recent trackings and sort by note_delta */
 }
 
 function test() {
