@@ -98,6 +98,13 @@ function getTrending(dbserver, cb) {
             cb(results);});
 }
 
+/* Get the most recent trackings depending on posted date */
+// will need to ad an extra attr. to Tracklist
+function getMostRecent(dbserver, cb) {
+    // TO DO
+}
+
+
 function test() {
     conn = connect();
 
