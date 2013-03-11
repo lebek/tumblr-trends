@@ -4,6 +4,12 @@ tumblr-trends
 Track popular posts on Tumblr to find currently trending
 
 
+### Bugs ###
+There is currently a really weird bug if our server is keeping track of more than one blog.
+It occurs inside server.js > function track()
+It happens because node.js is asynchonous, and only inserts the last blog it reads.
+I tried to use the Node module: async from https://github.com/caolan/async but could not figure out a solution.
+
 
 ### Instructions from Kevin to use MySQL: ###
 
