@@ -10,6 +10,7 @@ It occurs inside server.js > function track()
 It happens because node.js is asynchonous, and only inserts the last blog it reads.
 I tried to use the Node module: async from https://github.com/caolan/async but could not figure out a solution.
 
+If you need more blogs to test on, you can use mines at http://kd300.tumblr.com/ and http://kddial.tumblr.com/
 
 ### Instructions from Kevin to use MySQL: ###
 
