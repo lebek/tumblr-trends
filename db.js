@@ -89,8 +89,13 @@ function addTracklist(dbserver, hostname, post_id, note_count) {
         function(err, results) {if (err) throw err;});
 }
 
-function getTrending(dbserver) {
-    /* Get the most recent trackings and sort by note_delta */
+/* Get the most recent trackings and sort by note_delta */
+function getTrending(dbserver, cb) {
+    dbserver.query("SELECT * FROM Tracklist t1 WHERE time_stamp = " + 
+        "(SELECT MAX(time_stamp) from Tracklist t2 WHERE t1.post_id = t2.post_id) " + 
+        "ORDER BY note_delta DESC", 
+        function(err, results) {if (err) throw err; 
+            cb(results);});
 }
 
 function test() {
