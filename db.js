@@ -92,7 +92,7 @@ function viewTableData(dbserver, inputTable, cb) {
 /* Add a new blog */
 function addBlog(dbserver, hostname) {
     dbserver.query("INSERT INTO Blog VALUES('" + hostname + "', now())", 
-        function(err, results) {if (err) throw err;});
+        function(err, results) {if (err) console.log(hostname + " already added to db.");});
 }
 
 /* Add a new tracking to tracklist */
