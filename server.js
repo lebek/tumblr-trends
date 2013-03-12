@@ -95,7 +95,7 @@ function init() {
     track();
 
     /* ...and track again every hour */
-    setInterval(track, 1*30*1000);
+    setInterval(track, 60*60*1000);
 }
 
 init();
