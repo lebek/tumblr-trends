@@ -5,23 +5,20 @@ Track popular posts on Tumblr to find currently trending
 
 
 ### Bugs ###
-There is currently a really weird bug if our server is keeping track of more than one blog.
-It occurs inside server.js > function track()
-It happens because node.js is asynchonous, and only inserts the last blog it reads.
-I tried to use the Node module: async from https://github.com/caolan/async but could not figure out a solution.
+After a long period of time, the server becomes full of too much useless trackings and takes too long to query.  
+I will make some method tmr to delete these useless trackings from the database.
 
-If you need more blogs to test on, you can use mines at http://kd300.tumblr.com/ and http://kddial.tumblr.com/
+Also, if there are too many likes for example http://www.tumblr.com/liked/by/thisistheverge, the code might run forever.  Not sure if we should put a limit on that or not.
 
 ### Instructions from Kevin to use MySQL: ###
 
 ##### Install the MySQL module for Node.js: #####
 - open up the terminal and cd to your project folder
 -  type the following line in terminal / command line
-- "npm install mysql@2.0.0-alpha7"
+- npm install mysql@2.0.0-alpha7
 - This will install a package folder inside your project folder
 
-- Note: i wasnt sure if i should upload this folder to the github repo
-- the MySQL module is from: https://github.com/felixge/node-mysql
+- Note: I included the mysql package inside our repo
 
 
 
