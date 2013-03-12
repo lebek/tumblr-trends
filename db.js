@@ -99,7 +99,7 @@ function addBlog(dbserver, hostname) {
 function addTracklist(dbserver, hostname, post_id, date, note_count) {
     dbserver.query("INSERT INTO Tracklist VALUES('" + hostname + "', '" + post_id + "', '" + date +
                     "', now(), '" + note_count + "', NULL)", 
-        function(err, results) {if (err) console.log("Entries are lagging and being duplicated: "+err);});
+        function(err, results) {if (err) console.log("Ignore entries that are being duplicated. "+err);});
 }
 
 /* Get the most recent trackings and sort by note_delta */
@@ -156,8 +156,8 @@ function test() {
     //getTrending(conn, 'qq', 5, printArray);
     //getTrending(conn, 'kddial.tumblr.com', 5, printArray);
     //console.log("12121");
-    getMostRecent(conn, 'kddial.tumblr.com', null, printArray);
-    //getTrending(conn, hostname, limit, cb)
+    //getMostRecent(conn, 'kddial.tumblr.com', null, printArray);
+    //getTrending(conn, null, null, printArray);
 
     conn.end();
 }
@@ -170,3 +170,5 @@ module.exports.viewAllTables = viewAllTables;
 module.exports.viewTableData = viewTableData;
 module.exports.addBlog = addBlog;
 module.exports.addTracklist = addTracklist;
+
+
