@@ -18,6 +18,18 @@ function connect() {
     });
 }
 
+/* Connect to CDF mysql server */
+/*function connect() {
+    return mysql.createConnection({
+        host: 'dbsrv1.cdf.toronto.edu',
+        port: 3306,
+        user: 'c0dialke',
+        password: 'mooroong',
+        database: 'csc309h_c0dialke'
+    });
+}*/
+
+
 /* Create tables */
 function createTables(dbserver) {
 
@@ -29,6 +41,7 @@ var createBlog = 'CREATE TABLE Blog(' +
 var createTracklist = 'CREATE TABLE Tracklist(' +
                     'hostname VARCHAR(255) NOT NULL,' +
                     'post_id BIGINT NOT NULL,' +
+                    'date VARCHAR(50) NOT NULL,' +
                     'time_stamp VARCHAR(50) NOT NULL,' +
                     'note_count INT NOT NULL,' +
                     "note_delta INT," +
@@ -83,25 +96,48 @@ function addBlog(dbserver, hostname) {
 }
 
 /* Add a new tracking to tracklist */
-function addTracklist(dbserver, hostname, post_id, note_count) {
-    dbserver.query("INSERT INTO Tracklist VALUES('" + hostname + "', '" + post_id + 
+function addTracklist(dbserver, hostname, post_id, date, note_count) {
+    dbserver.query("INSERT INTO Tracklist VALUES('" + hostname + "', '" + post_id + "', '" + date +
                     "', now(), '" + note_count + "', NULL)", 
-        function(err, results) {if (err) throw err;});
+        function(err, results) {if (err) console.log("Entries are lagging and being duplicated: "+err);});
 }
 
 /* Get the most recent trackings and sort by note_delta */
-function getTrending(dbserver, cb) {
-    dbserver.query("SELECT * FROM Tracklist t1 WHERE time_stamp = " + 
-        "(SELECT MAX(time_stamp) from Tracklist t2 WHERE t1.post_id = t2.post_id) " + 
-        "ORDER BY note_delta DESC", 
+/* Arguement:
+        hostname    - if null, return trending of all hostnames
+                    - if hostname, return trending of a single hostname
+        limit       - if null, return all trackings
+                    - if int, return int number of trackings */
+function getTrending(dbserver, hostname, limit, cb) {
+    var query = "SELECT * FROM Tracklist t1 WHERE time_stamp = " + 
+        "(SELECT MAX(time_stamp) from Tracklist t2 WHERE t1.post_id = t2.post_id) ";
+
+    if (hostname) { query += "AND hostname = '" + hostname + "' ";}
+    query += "ORDER BY note_delta DESC ";
+    if (limit) { query += "LIMIT " + limit; }
+
+    dbserver.query(query, 
         function(err, results) {if (err) throw err; 
             cb(results);});
 }
 
-/* Get the most recent trackings depending on posted date */
-// will need to ad an extra attr. to Tracklist
-function getMostRecent(dbserver, cb) {
-    // TO DO
+/* Get the most recent trackings and sort by posted date */
+/* Arguement:
+        hostname    - if null, return trending of all hostnames
+                    - if hostname, return trending of a single hostname
+        limit       - if null, return all trackings
+                    - if int, return int number of trackings */
+function getMostRecent(dbserver, hostname, limit, cb) {
+    var query = "SELECT * FROM Tracklist t1 WHERE time_stamp = " + 
+        "(SELECT MAX(time_stamp) from Tracklist t2 WHERE t1.post_id = t2.post_id) ";
+
+    if (hostname) { query += "AND hostname = '" + hostname + "' ";}
+    query += "ORDER BY date DESC ";
+    if (limit) { query += "LIMIT " + limit; }
+
+    dbserver.query(query, 
+        function(err, results) {if (err) throw err; 
+            cb(results);});
 }
 
 
@@ -109,13 +145,19 @@ function test() {
     conn = connect();
 
     /* test functions */
-    dropTables(conn);
-    createTables(conn);
+    // dropTables(conn);
+    // createTables(conn);
 
-    viewAllTables(conn);
+    // viewAllTables(conn);
 
-    addBlog(conn, 'firstBlog', '2022-02-30'); // add a new blog
-    viewTableData(conn, 'Blog'); // print blog table to console
+    // addBlog(conn, 'firstBlog', '2022-02-30'); // add a new blog
+    // viewTableData(conn, 'Blog'); // print blog table to console
+
+    //getTrending(conn, 'qq', 5, printArray);
+    //getTrending(conn, 'kddial.tumblr.com', 5, printArray);
+    //console.log("12121");
+    getMostRecent(conn, 'kddial.tumblr.com', null, printArray);
+    //getTrending(conn, hostname, limit, cb)
 
     conn.end();
 }

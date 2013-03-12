@@ -74,7 +74,7 @@ function track() {
 
             getLikes(hostname, function (likes) {
                 for (var i in likes) { 
-                    db.addTracklist(conn, hostname, likes[i].id, likes[i].note_count); 
+                    db.addTracklist(conn, hostname, likes[i].id, likes[i].date, likes[i].note_count); 
                 };
             });
         }
@@ -86,13 +86,16 @@ function init() {
     db.dropTables(conn);
     db.createTables(conn);
 
-    db.addBlog(conn, 'blog.zacksultan.com');
+    //db.addBlog(conn, 'blog.zacksultan.com');
+    //db.addBlog(conn, 'kd300.tumblr.com');
+    db.addBlog(conn, 'kddial.tumblr.com');
+    //db.addBlog(conn, 'ifloodemptylakes.tumblr.com');
     
     /* Track once */
     track();
 
     /* ...and track again every hour */
-    setInterval(track, 60*60*1000);
+    setInterval(track, 1*30*1000);
 }
 
 init();
