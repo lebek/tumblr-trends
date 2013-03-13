@@ -56,7 +56,7 @@ Each row consists of the following attributes:
 |*time_stamp|The current time of the insertion|
 |note_count|The total note count of the liked post|
 |note_delta|The difference between the current total note count and previous total note count|
-__* primary key__
+_* primary key_
 
 Example tables:
 
