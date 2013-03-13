@@ -3,6 +3,7 @@ var http = require("http"),
     fs = require("fs"),
     url = require("url"),
     querystring = require("querystring"),
+    async = require("async"),
     db = require("./db");
 
 var TUMBLR_API_KEY = 'Jpfj8ecNRrHu6b5PSpF8raAbHpQpE3YJeuL3qFYTT8SYbLXmte'
@@ -10,9 +11,7 @@ var TUMBLR_API_KEY = 'Jpfj8ecNRrHu6b5PSpF8raAbHpQpE3YJeuL3qFYTT8SYbLXmte'
 var conn = null;
 
 /* optionally set port using first command line arg, default=30925 */
-var args = process.argv.splice(2);
-var port = parseInt(args[0]);
-if (isNaN(port)) port = 30925;
+var port = 30925;
 
 /* Get all posts liked by base_hostname and insert into database*/
 function getLikesAndInsert(base_hostname) {
@@ -37,7 +36,7 @@ function getLikesAndInsert(base_hostname) {
                 some_likes = JSON.parse(str).response.liked_posts;
                 likes.push.apply(likes, some_likes);
 
-                if (some_likes.length > 0) {
+                if (some_likes && some_likes.length > 0) {
                     /* Request the next batch of likes */
                     offset += some_likes.length;
                     _getLikes(offset);
@@ -72,7 +71,10 @@ function getPost(hostname, post_id, cb) {
         });
 
         response.on('end', function () {
-            cb(JSON.parse(str).response.posts[0]);
+            var res = JSON.parse(str).response.posts[0];
+            res.hostname = hostname;
+            res.post_id = post_id
+            cb(res);
         });
     });
 }
@@ -88,24 +90,9 @@ function track() {
     });
 }
 
-function init() {
-    conn = db.connect();
-    db.dropTables(conn);
-    db.createTables(conn);
-
-    //db.addBlog(conn, 'blog.zacksultan.com');
-    db.addBlog(conn, 'kd300.tumblr.com');
-    db.addBlog(conn, 'kddial.tumblr.com');
-    
-    /* Track once */
-    track();
-
-    /* ...and track again every hour */
-    setInterval(track, 1*60*1000);
-}
-
 http.createServer(function(request, response) {
     var pathname = url.parse(request.url).pathname
+    var query = url.parse(request.url).query;
     var regex_basehostname = /^.+\/(.+)\//
 
     /***** HANDLERS *****/
@@ -129,48 +116,120 @@ http.createServer(function(request, response) {
 
     /***** REQUEST HANDLERS *****/
     function addBlog(request, response) {
-        var blog_name = request.blog;
-        db.addBlog(conn, blog_name)
-        _writeHead(response, 200, 'json')
-        response.end();
+        if (request.method == 'POST') {
+            var body = '';
+            request.on('data', function (data) {
+                body += data;
+            });
+            request.on('end', function () {
+              var blog_name = querystring.parse(body).blog;
+               db.addBlog(conn, blog_name)
+                _writeHead(response, 200, 'json')
+                response.end();
+            });
+        }
+    }
+
+    function processTrends(trends, cb) {
+        var processedTrends = [];
+
+        /* For each post get the metadata from Tumblr */
+        async.map(trends, function (t, callback) { 
+            getPost(t.hostname, t.post_id, function (res) { 
+                callback(null, res) 
+            }) 
+        }, function (err, res) {
+
+            /* Take the post data we need for our final result */
+            for (var i in res) {
+                var processedTrend = { 
+                    url : res[i].post_url,
+                    date : res[i].date,
+                    hostname : res[i].hostname,
+                    post_id : res[i].post_id
+                };
+
+                if ('body' in res[i]) processedTrend.text = res[i].body;
+
+                if ('image_permalink' in res[i]) processedTrend.image = res[i].image_permalink;
+
+                processedTrends.push(processedTrend)
+            }
+
+            /* For each post get the tracking data from db */
+            async.map(processedTrends, function (pt, callback) { db.getTrackings(conn, pt.hostname, pt.post_id, function (r) {
+                        pt.tracking = [];
+                        for (var i in r) {
+                            pt.tracking.push({ 
+                                timestamp : r[i].time_stamp, 
+                                increment : r[i].note_delta, 
+                                count : r[i].note_count,
+                                sequence : r.length-i-1, 
+                            });
+                        }
+                        callback(null, pt);
+                    }) 
+                }, function (err, res) {
+                    /* We just needed these for processing, remove for final result */
+                    for (var i in res) {
+                        delete res[i].hostname;
+                        delete res[i].post_id;
+                    };
+
+                    /* Callback with processed trends */
+                    cb(res)
+            });
+        });
     }
 
     function getTrends(request, response, base_hostname) {
-        var limit = null, order = request.order;
-        if (typeof request.limit !== 'null') {
-            limit = request.limit
-        }
+        var params = querystring.parse(query);
 
-        var getDBFunction;
-        if (request.order === 'Recent') {
-            DBFunction = getMostRecent
+        var output = { limit : params.limit };
+        if (params.order === 'Recent') {
+            db.getMostRecent(conn, base_hostname, params.limit, function (result) {
+                processTrends(result, function (res) {
+                    output.order = 'Recent';
+                    output.trending = res;
+                    _writeHead(response, 200, 'json');
+                    _writeBody(response, JSON.stringify(output, undefined, 2));
+                });
+            });
         } else {
-            DBFunction = getTrending
+            db.getTrending(conn, base_hostname, params.limit, function (result) {
+                processTrends(result, function (res) {
+                    output.order = 'Trending';
+                    output.trending = res;
+                    _writeHead(response, 200, 'json');
+                    _writeBody(response, JSON.stringify(output, undefined, 2));
+                });
+            });
         }
-
-        DBFunction(conn, base_hostname, limit, function (result) {
-            _writeHead(response, 200, 'json')
-            _writeBody(response, JSON.stringify(result);
-        });
     }
 
     function getAllTrends(request, response) {
-        var limit = null;
-        if (typeof request.limit !== 'null') {
-            limit = request.limit
-        }
+        var params = querystring.parse(query);
 
-        var getDBFunction;
-        if (request.order === 'Recent') {
-            DBFunction = getMostRecent
+        var output = { limit : params.limit };
+        if (params.order === 'Recent') {
+            db.getMostRecent(conn, null, params.limit, function (result) {
+                processTrends(result, function (res) { 
+                    output.order = 'Recent';
+                    output.trending = res;
+                    _writeHead(response, 200, 'json');
+                    _writeBody(response, JSON.stringify(output, undefined, 2));
+                });
+            });
         } else {
-            DBFunction = getTrending
+            db.getTrending(conn, null, params.limit, function (result) {
+                processTrends(result, function (res) { 
+                    output.order = 'Trending';
+                    output.trending = res;
+                    _writeHead(response, 200, 'json');
+                    _writeBody(response, JSON.stringify(output, undefined, 2));
+                });
+            });
         }
-
-        DBFunction(conn, null, limit, function (result) {
-            _writeHead(response, 200, 'json')
-            _writeBody(response, JSON.stringify(result);
-        });
     }
 
     /***** HELPER FUNCTIONS *****/
@@ -202,6 +261,22 @@ http.createServer(function(request, response) {
         response.end();
     }
 
-    init();
-
 }).listen(port);
+
+function init() {
+    conn = db.connect();
+    db.dropTables(conn);
+    db.createTables(conn);
+
+    //db.addBlog(conn, 'blog.zacksultan.com');
+    db.addBlog(conn, 'kd300.tumblr.com');
+    db.addBlog(conn, 'kddial.tumblr.com');
+    
+    /* Track once */
+    track();
+
+    /* ...and track again every hour */
+    setInterval(track, 1*60*1000);
+}
+
+init();

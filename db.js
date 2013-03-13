@@ -140,6 +140,14 @@ function getMostRecent(dbserver, hostname, limit, cb) {
             cb(results);});
 }
 
+/* Get the most recent trackings for an individual post and sort by posted timestamp */
+function getTrackings(dbserver, hostname, post_id, cb) {
+    var query = "SELECT * FROM Tracklist WHERE hostname = '" + hostname + "' AND post_id = '" + post_id + "' ORDER BY time_stamp DESC";
+
+    dbserver.query(query, 
+        function(err, results) {if (err) throw err; 
+            cb(results);});
+}
 
 function test() {
     conn = connect();
@@ -170,5 +178,8 @@ module.exports.viewAllTables = viewAllTables;
 module.exports.viewTableData = viewTableData;
 module.exports.addBlog = addBlog;
 module.exports.addTracklist = addTracklist;
+module.exports.getTrending = getTrending;
+module.exports.getMostRecent = getMostRecent;
+module.exports.getTrackings = getTrackings;
 
 
