@@ -10,7 +10,7 @@ Port: ```30925```
 ## Usage ##
 
 Add a blog post with ```POST /blog```
-| parameter | description |
+|parameter|description|
 |---|---|
 | **blog** | a string indicating a new blog to track by its {base-hostname} |
 Response: HTTP status 200 if accepted
