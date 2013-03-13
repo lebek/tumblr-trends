@@ -38,5 +38,39 @@ Response:
 ```{"trending":[{"url":"http://someurl.com","text":"Some text belonging to the post, if available","image":"http://image-url-from-post.com","date":"2013-03-13 9:15:00 EST","last_track":"2013-03-13 14:20:00 EST","last_count":450,"tracking":[{"timestamp":"2013-03-13 14:20:00 EST","sequence":3,"increment":15,"count":450},{"timestamp":"2013-03-13 13:20:00 EST","sequence":2,"increment":25,"count":435},{"timestamp":"2013-03-13 12:20:00 EST","sequence":1,"increment":10,"count":410}]},{...}],"order":"Trending","limit":10}```
 
 
+Database details
+
+The database schema consists of two tables:
+  Table Blog to keep a list of blogs we are tracking
+	Table Tracklist to keep a list of every like from each blog
+
+On every hour, we find all the likes for each blog and insert a new row for every like into the table Tracklist.  This will result in multiple rows for every liked post.  To solve this redundancy, we delete the oldest row for each liked post based on the attribute time_stamp.
+
+Each row consists of the following attributes:
+	hostname: 	The blog we are tracking
+	post_id:	The id of the liked post
+	date:		The date the liked post was posted
+	time_stamp:	The current time of the insertion
+	note_count:	The total note count of the liked post
+	note_delta: The difference between the current total note count and previous total note count
+
+Example tables:
+	+-------------------+---------------------+
+	| Table Blog                              |
+	+-------------------+---------------------+
+	| hostname          | date_added          |
+	+-------------------+---------------------+
+	| kd300.tumblr.com  | 2013-03-12 21:00:00 |
+	| kddial.tumblr.com | 2013-03-12 21:00:00 |
+	+-------------------+---------------------+
+
+	+-------------------+-------------+-------------------------+---------------------+------------+------------+
+	| Table Tracklist                                                                                           |
+	+-------------------+-------------+-------------------------+---------------------+------------+------------+
+	| hostname          | post_id     | date                    | time_stamp          | note_count | note_delta |
+	+-------------------+-------------+-------------------------+---------------------+------------+------------+
+	| kd300.tumblr.com  | 31935089961 | 2012-09-20 19:41:58 GMT | 2013-03-12 21:00:00 |   12660085 |         23 |
+	| kddial.tumblr.com | 45189784396 | 2013-03-12 14:31:59 GMT | 2013-03-12 21:35:29 |        181 |          2 |
+	+-------------------+-------------+-------------------------+---------------------+------------+------------+
 
 
