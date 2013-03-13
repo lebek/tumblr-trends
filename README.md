@@ -40,6 +40,12 @@ Response:
 
 ## How it works ##
 
+#### Server ####
+
+blah blah
+
+#### Database ####
+
 The database schema consists of two tables:
 + Table ```Blog``` to keep a list of blogs we are tracking
 + Table ```Tracklist``` to keep a list of every like from each blog
