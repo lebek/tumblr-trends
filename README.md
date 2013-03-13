@@ -1,6 +1,6 @@
 ## tumblr-trends ##
 
-_Note: This README is in Markdown language._
+_Note: This README is in Markdown language. Best viewed at https://gist.github.com/fananta/5148911_
 
 #### Tumblr blog trend tracking system ####
 
