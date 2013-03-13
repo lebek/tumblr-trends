@@ -10,14 +10,9 @@ Port: ```30925```
 
 Add a blog post with ```POST /blog```
 
-|||
-|---|---|
-| **Path** | /topic/all |
-| **HTTP Method** | GET |
-
 |parameter|description|
 |---|---|
-| **blog** | a string indicating a new blog to track by its {base-hostname} |
+| blog | a string indicating a new blog to track by its {base-hostname} |
 Response: HTTP status 200 if accepted
 
 Get trends for a particular blog with ```GET /blog/{base-hostname}/trends```
