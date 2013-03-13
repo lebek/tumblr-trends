@@ -50,14 +50,16 @@ Each row consists of the following attributes:
 
 | attribute | description |
 |---|---|
-|hostname|The blog we are tracking|
-	post_id:	The id of the liked post
-	date:		The date the liked post was posted
-	time_stamp:	The current time of the insertion
-	note_count:	The total note count of the liked post
-	note_delta: The difference between the current total note count and previous total note count
+|*hostname|The blog we are tracking|
+|*post_id|The id of the liked post|
+|date|The date the liked post was posted|
+|*time_stamp|The current time of the insertion|
+|note_count|The total note count of the liked post|
+|note_delta|The difference between the current total note count and previous total note count|
+__* primary key__
 
 Example tables:
+
 	+-------------------+---------------------+
 	| Table Blog                              |
 	+-------------------+---------------------+
