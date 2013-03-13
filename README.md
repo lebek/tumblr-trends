@@ -8,6 +8,8 @@ CDF Environment: ```greywolf```
 
 Port: ```30925```
 
+_Note: To get it running on CDF: ```screen -> node server.js -> detach process from local user (Ctrl+A, Ctrl+D)```_
+
 #### Team members ####
 Peter Le Bek - c2lebekp
 
