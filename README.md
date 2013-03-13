@@ -42,7 +42,9 @@ Response:
 
 #### Server ####
 
-blah blah
+We have the _Server_ and _Database_ modules. The _Server_ invokes an initialization function to connect to the DB, and begin tracking. Each hour the _track_ function is called to update the DB with new likes and posts on all tracked blogs.
+
+The server works by routing and handling requests for three request types (as indicated above in the _Usage_ section). The request handlers make the appropriate function calls to the _Database_ module, retrieves the data, formats the result, and sends the JSON response. The _Database_ module makes querying the DB simple by adding providing wrapper functions for necessary queries.  
 
 #### Database ####
 
