@@ -8,6 +8,11 @@ CDF Environment: ```greywolf```
 
 Port: ```30925```
 
+#### Team members ####
+Peter Le Bek - c2lebekp
+Kevin Dial - c0dialke
+Fahd Ananta - c0ananta
+
 ## Usage ##
 
 #### POST /blog - Add a blog post ####
