@@ -10,14 +10,14 @@ Port: ```30925```
 
 ## Usage ##
 
-Add a blog post with ```POST /blog```
+#### POST /blog - Add a blog post ####
 
 |parameter|description|
 |---|---|
 | blog | a string indicating a new blog to track by its {base-hostname} |
 Response: HTTP status 200 if accepted
 
-Get trends for a particular blog with ```GET /blog/{base-hostname}/trends```
+#### GET /blog/{base-hostname}/trends - Get trends for a particular blog ####
 
 |parameter|description|
 |---|---|
@@ -27,7 +27,7 @@ Get trends for a particular blog with ```GET /blog/{base-hostname}/trends```
 Response:
 ```{"trending":[{"url":"http://someurl.com","text":"Some text belonging to the post, if available","image":"http://image-url-from-post.com","date":"2013-03-13 9:15:00 EST","last_track":"2013-03-13 14:20:00 EST","last_count":450,"tracking":[{"timestamp":"2013-03-13 14:20:00 EST","sequence":3,"increment":15,"count":450},{"timestamp":"2013-03-13 13:20:00 EST","sequence":2,"increment":25,"count":435},{"timestamp":"2013-03-13 12:20:00 EST","sequence":1,"increment":10,"count":410}]},{...}],"order":"Trending","limit":10}```
 
-Get all tracked trends with ```GET /blogs/trends```
+#### GET /blogs/trends - Get all tracked trends ####
 
 | parameter | description |
 |---|---|
