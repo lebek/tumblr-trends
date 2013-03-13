@@ -61,7 +61,7 @@ The database schema consists of two tables:
 + Table ```Blog``` to keep a list of blogs we are tracking
 + Table ```Tracklist``` to keep a list of every like from each blog
 
-Each hour, we find all the likes for each blog and insert a new row for every like into the table Tracklist. This will result in multiple rows for every liked post.  To solve this redundancy, we delete the oldest row for each liked post based on the attribute time_stamp.
+Each hour, we find all the likes for each blog and insert a new row for every like into the table Tracklist. This will result in multiple rows for every liked post.
 
 Each row consists of the following attributes:
 
