@@ -1,8 +1,8 @@
 ## tumblr-trends ##
 
-Note: This README is in Markdown language.
+_Note: This README is in Markdown language._
 
-Tumblr blog trend tracking system running on:
+#### Tumblr blog trend tracking system ####
 
 CDF Environment: ```greywolf```
 
