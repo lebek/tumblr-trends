@@ -1,5 +1,4 @@
-# tumblr-trends #
-=============
+## tumblr-trends ##
 
 Note: This README is in Markdown language.
 
@@ -10,6 +9,12 @@ Port: ```30925```
 ## Usage ##
 
 Add a blog post with ```POST /blog```
+
+|||
+|---|---|
+| **Path** | /topic/all |
+| **HTTP Method** | GET |
+
 |parameter|description|
 |---|---|
 | **blog** | a string indicating a new blog to track by its {base-hostname} |
