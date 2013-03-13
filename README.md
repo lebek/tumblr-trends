@@ -38,16 +38,19 @@ Response:
 ```{"trending":[{"url":"http://someurl.com","text":"Some text belonging to the post, if available","image":"http://image-url-from-post.com","date":"2013-03-13 9:15:00 EST","last_track":"2013-03-13 14:20:00 EST","last_count":450,"tracking":[{"timestamp":"2013-03-13 14:20:00 EST","sequence":3,"increment":15,"count":450},{"timestamp":"2013-03-13 13:20:00 EST","sequence":2,"increment":25,"count":435},{"timestamp":"2013-03-13 12:20:00 EST","sequence":1,"increment":10,"count":410}]},{...}],"order":"Trending","limit":10}```
 
 
-Database details
+## How it works ##
 
 The database schema consists of two tables:
-  Table Blog to keep a list of blogs we are tracking
-	Table Tracklist to keep a list of every like from each blog
++ Table ```Blog``` to keep a list of blogs we are tracking
++ Table ```Tracklist``` to keep a list of every like from each blog
 
-On every hour, we find all the likes for each blog and insert a new row for every like into the table Tracklist.  This will result in multiple rows for every liked post.  To solve this redundancy, we delete the oldest row for each liked post based on the attribute time_stamp.
+Each hour, we find all the likes for each blog and insert a new row for every like into the table Tracklist. This will result in multiple rows for every liked post.  To solve this redundancy, we delete the oldest row for each liked post based on the attribute time_stamp.
 
 Each row consists of the following attributes:
-	hostname: 	The blog we are tracking
+
+| attribute | description |
+|---|---|
+|hostname|The blog we are tracking|
 	post_id:	The id of the liked post
 	date:		The date the liked post was posted
 	time_stamp:	The current time of the insertion
