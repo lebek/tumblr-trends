@@ -5,9 +5,14 @@ var http = require("http"),
     querystring = require("querystring"),
     db = require("./db");
 
-TUMBLR_API_KEY = 'Jpfj8ecNRrHu6b5PSpF8raAbHpQpE3YJeuL3qFYTT8SYbLXmte'
+var TUMBLR_API_KEY = 'Jpfj8ecNRrHu6b5PSpF8raAbHpQpE3YJeuL3qFYTT8SYbLXmte'
 
-conn = null;
+var conn = null;
+
+/* optionally set port using first command line arg, default=30925 */
+var args = process.argv.splice(2);
+var port = parseInt(args[0]);
+if (isNaN(port)) port = 30925;
 
 /* Get all posts liked by base_hostname and insert into database*/
 function getLikesAndInsert(base_hostname) {
@@ -99,4 +104,104 @@ function init() {
     setInterval(track, 1*60*1000);
 }
 
-init();
+http.createServer(function(request, response) {
+    var pathname = url.parse(request.url).pathname
+    var regex_basehostname = /^.+\/(.+)\//
+
+    /***** HANDLERS *****/
+    var handle = {}
+    handle["/blog"] = addBlog;
+    handle["trends"] = getTrends;
+    handle["/blogs/trends"] = getAllTrends;
+
+    /***** ROUTER *****/
+    if (typeof handle[pathname] === 'function') {
+        console.log("Routing a request for " + pathname);
+        handle[pathname](request, response);
+    } else if (pathname.match(regex_basehostname) !== null) {
+        console.log("Routing a request for " + pathname);
+        var base_hostname = pathname.match(regex_basehostname)[1];
+        handle["trends"](request, response, base_hostname)
+    } else {
+        console.log("No request handler found for " + pathname);
+        _displayError(response, 404);
+    }
+
+    /***** REQUEST HANDLERS *****/
+    function addBlog(request, response) {
+        var blog_name = request.blog;
+        db.addBlog(conn, blog_name)
+        _writeHead(response, 200, 'json')
+        response.end();
+    }
+
+    function getTrends(request, response, base_hostname) {
+        var limit = null, order = request.order;
+        if (typeof request.limit !== 'null') {
+            limit = request.limit
+        }
+
+        var getDBFunction;
+        if (request.order === 'Recent') {
+            DBFunction = getMostRecent
+        } else {
+            DBFunction = getTrending
+        }
+
+        DBFunction(conn, base_hostname, limit, function (result) {
+            _writeHead(response, 200, 'json')
+            _writeBody(response, JSON.stringify(result);
+        });
+    }
+
+    function getAllTrends(request, response) {
+        var limit = null;
+        if (typeof request.limit !== 'null') {
+            limit = request.limit
+        }
+
+        var getDBFunction;
+        if (request.order === 'Recent') {
+            DBFunction = getMostRecent
+        } else {
+            DBFunction = getTrending
+        }
+
+        DBFunction(conn, null, limit, function (result) {
+            _writeHead(response, 200, 'json')
+            _writeBody(response, JSON.stringify(result);
+        });
+    }
+
+    /***** HELPER FUNCTIONS *****/
+    /* error handler */
+    function _displayError(response, error_code, error_msg) {
+        error_msg = typeof error_msg !== "undefined" ? error_code + " " + error_msg : error_code + " not found";
+        _writeHead(response, error_code, 'plain');
+        _writeBody(response, error_msg);
+    }
+
+    /* helper for response.writeHead */
+    function _writeHead(response, html_code, content_type) {
+        if (content_type === "plain" || content_type === "html") {
+            content_type = "text/" + content_type;
+        } else if (content_type === "json" || content_type === "js") {
+            content_type = "application/" + content_type;
+        } else if (content_type === "png") {
+            content_type = "image/" + content_type;
+        } else {
+            content_type = "text/plain";
+        }
+        response.writeHead(html_code, {"Content-Type": content_type});
+    }
+
+    /* helper for response.write */
+    function _writeBody (response, body_content, encoding) {
+        encoding = typeof encoding !== "undefined" ? encoding : "utf-8";
+        response.write(body_content);
+        response.end();
+    }
+
+    init();
+
+}).listen(port);
